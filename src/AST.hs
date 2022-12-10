@@ -58,7 +58,6 @@ data Binop a
   | OGt a     -- ^ Greater than
   | OAnd a    -- ^ Boolean and
   | OOr a     -- ^ Boolean or
-  | OSeq a    -- ^ Expression sequencing
   deriving (Show, Eq, Functor)
 
 -- | Unary operators

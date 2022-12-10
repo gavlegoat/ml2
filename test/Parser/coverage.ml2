@@ -1,0 +1,17 @@
+(* This is designed to cover as many AST structures as possible. It does not
+   make any sense as an actual program. *)
+
+let tmap (f : 'a -> int) (x : 'a * 'b list) : int * 'b list =
+  match x with
+  | 3                 -> z : int
+  | (y, z)            -> (f y, z)
+  | (y :: z) as lst   -> if true then -1 >= 2 else 3 = 4
+  | x when x < 0      -> 1 + 2 * 3 > 4
+  | _                 -> false
+  | (y :: z) | (a, b) -> 10.4 - 5.4 / 0.3 <= 3
+  | [head; tail]      -> "string"
+  | Constr a b        -> a && b || (1 < 2) || !(a <> b)
+
+let rec func = fun a -> let b = a + 1 in let rec c x = 0 in c b
+
+let (a, b) = Constr x (y :: [y1; y2; y3])

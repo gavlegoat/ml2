@@ -156,9 +156,8 @@ pattern :: { Pattern Info }
   | constant                     { PConst () $1 }
   | pattern '|' pattern          { POr () $1 $3 }
   | pattern as id                { PAs () $1 (getId $3) }
-  | '(' pattern ')'              { $2 }
-  | constr patterns_nosep %shift { PConstructor () (getConstr $1 ()) $2 }
-  | '(' patterns_comma ')'       { PTuple () (reverse $2) }
+  | constr patterns_nosep %shift { PConstructor () (getConstr $1 ()) (reverse $2) }
+  | '(' patterns_comma ')'       { if length $2 == 1 then head $2 else PTuple () (reverse $2) }
   | '[' patterns_semi ']'        { PList () (reverse $2) }
   | pattern '::' pattern         { PCons () $1 $3 }
 
@@ -170,6 +169,7 @@ patterns_nosep :: { [Pattern Info] }
 
 patterns_comma :: { [Pattern Info] }
   : {- empty -}                { [] }
+  | pattern                    { [$1] }
   | patterns_comma ',' pattern { $3 : $1 }
 
 patterns_semi :: { [Pattern Info] }
@@ -195,7 +195,18 @@ expr :: { Expr Info }
 -- An expression with optional, left-associative infix operators
 -- '::' is handled separately so that it can be right associative
 infix_expr :: { Expr Info }
-  : infix_expr bop expr1       { EBinop () $1 $2 $3 }
+  : infix_expr '+' infix_expr  { EBinop () $1 (OPlus ()) $3 }
+  | infix_expr '-' infix_expr  { EBinop () $1 (OMinus ()) $3 }
+  | infix_expr '*' infix_expr  { EBinop () $1 (OTimes ()) $3 }
+  | infix_expr '/' infix_expr  { EBinop () $1 (ODivide ()) $3 }
+  | infix_expr '<' infix_expr  { EBinop () $1 (OLt ()) $3 }
+  | infix_expr '<=' infix_expr { EBinop () $1 (OLe ()) $3 }
+  | infix_expr '=' infix_expr  { EBinop () $1 (OEq ()) $3 }
+  | infix_expr '<>' infix_expr { EBinop () $1 (ONeq ()) $3 }
+  | infix_expr '>=' infix_expr { EBinop () $1 (OGe ()) $3 }
+  | infix_expr '>' infix_expr  { EBinop () $1 (OGt ()) $3 }
+  | infix_expr '&&' infix_expr { EBinop () $1 (OAnd ()) $3 }
+  | infix_expr '||' infix_expr { EBinop () $1 (OOr ()) $3 }
   | infix_expr '::' infix_expr { ECons () $1 $3 }
   | expr1                      { $1 }
 
@@ -224,8 +235,7 @@ aexpr :: { Expr Info }
 -- Lowest-level expressions
 aexpr1 :: { Expr Info }
   : base_expr           { $1 }
-  | '(' expr ')'        { $2 }
-  | '(' exprs_comma ')' { ETuple () (reverse $2) }
+  | '(' exprs_comma ')' { if length $2 == 1 then head $2 else ETuple () (reverse $2) }
   | '[' exprs_semi ']'  { EList () (reverse $2) }
 
 base_expr :: { Expr Info }
@@ -235,26 +245,13 @@ base_expr :: { Expr Info }
 
 exprs_comma :: { [Expr Info] }
   : {- empty -}          { [] }
+  | expr                 { [$1] }
   | exprs_comma ',' expr { $3 : $1 }
 
 exprs_semi :: { [Expr Info] }
-  : {- empty -}          { [] }
-  | exprs_comma ';' expr { $3 : $1 }
-
-bop :: { Binop Info }
-  : '+'  { OPlus () }
-  | '-'  { OMinus () }
-  | '*'  { OTimes () }
-  | '/'  { ODivide () }
-  | '<'  { OLt () }
-  | '<=' { OLe () }
-  | '='  { OEq () }
-  | '<>' { ONeq () }
-  | '>=' { OGe () }
-  | '>'  { OGt () }
-  | '&&' { OAnd () }
-  | '||' { OOr () }
-  | ';'  { OSeq () }
+  : {- empty -}         { [] }
+  | expr                { [$1] }
+  | exprs_semi ';' expr { $3 : $1 }
 
 constant :: { Constant Info }
   : int    { CInt () (getInt $1) }

@@ -29,12 +29,14 @@ import AST
 
 import qualified Parser.Fib as Fib
 import qualified Parser.OddEven as OddEven
+import qualified Parser.Coverage as Coverage
 
 -- | Parser test cases, as described above.
 testCases :: [(String, Bool, [Declaration Info])]
 testCases =
   [ ("test/Parser/fib.ml2", Fib.shouldParse, Fib.expected)
   , ("test/Parser/odd_even.ml2", OddEven.shouldParse, OddEven.expected)
+  , ("test/Parser/coverage.ml2", Coverage.shouldParse, Coverage.expected)
   ]
 
 -- | Remove all extraneous informatoin from the parse tree.
@@ -47,7 +49,8 @@ buildTestCase (fn, shouldParse, expected) = do
   code <- BS.readFile fn
   hspec $ describe ("parser [" <> fn <> "]") $
     case runAlex code parseMain of
-      Left _ -> it "errors when it should" $ shouldParse `shouldBe` False
+      Left _ ->
+        it "fails only when it should" $ False `shouldBe` shouldParse
       Right ast -> do
         it "parses when it should" $ shouldParse `shouldBe` True
         it "parses correctly" $ stripInfo ast `shouldBe` stripInfo expected
