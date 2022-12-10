@@ -62,3 +62,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - ml2
+    - hspec

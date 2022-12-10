@@ -6,6 +6,7 @@ module Lexer
   , alexGetInput
   , alexError
   , alexMonadScan
+  , runAlex
   ) where
 
 import Data.ByteString.Lazy.Char8 as BS
@@ -33,6 +34,7 @@ tokens :-
 <0>       "*)" { \_ _ -> alexError "Error: end comment token outside comment" }
 <comment> "(*" { increaseCommentDepth }
 <comment> "*)" { decreaseCommentDepth }
+<comment> \n   ;
 <comment> .    ;
 
 -- Strings
@@ -79,7 +81,7 @@ tokens :-
 --   Comparison
 <0> "<"  { tok Lt }
 <0> "<=" { tok Le }
-<0> "==" { tok Eq }
+<0> "="  { tok Eq }
 <0> "<>" { tok Neq }
 <0> ">=" { tok Ge }
 <0> ">"  { tok Gt }

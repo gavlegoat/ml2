@@ -1,6 +1,17 @@
 module Main (main) where
 
-import Lib
+import qualified Data.ByteString.Lazy.Char8 as BS
+import System.Environment (getArgs)
+
+import Lexer (runAlex)
+import Parser (parseMain)
 
 main :: IO ()
-main = someFunc
+main = do
+  args <- getArgs
+  code <- BS.readFile (head args)
+  case runAlex code parseMain of
+    Left err -> putStrLn err
+    Right ast -> do
+      print ast
+      print $ map (fmap (const 10)) ast
