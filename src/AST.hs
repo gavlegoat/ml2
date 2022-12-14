@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveFunctor #-}
-
 {-|
 Module      : AST
 Description : Syntax trees for ML2
@@ -10,6 +8,8 @@ Stability   : experimental
 
 This module contains the data definitions of syntax trees for ML2.
 -}
+
+{-# LANGUAGE DeriveFunctor #-}
 
 module AST
   ( Constant (..)
@@ -116,12 +116,12 @@ data Expr a
   | EIf a (Expr a) (Expr a) (Expr a)                  -- ^ Conditional
   | EMatch a (Expr a) [PatternMatch a]                -- ^ Match/with
   | ELambda a [Parameter a] (Maybe (Type a)) (Expr a) -- ^ Anonymous function
-  | ELet a [Binding a] (Expr a)                       -- ^ Let binding
+  | ELet a (Binding a) (Expr a)                       -- ^ Let binding
   | ELetRec a [Binding a] (Expr a)                    -- ^ Recursive binding
   deriving (Show, Eq, Functor)
 
 -- | Top-level declarations
 data Declaration a
-  = DLet a [Binding a]    -- ^ Non-recursive definition
+  = DLet a (Binding a)    -- ^ Non-recursive definition
   | DLetRec a [Binding a] -- ^ Recursive definition
   deriving (Show, Eq, Functor)

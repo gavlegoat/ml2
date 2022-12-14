@@ -120,7 +120,7 @@ optdoublesemi :: { () }
 
 -- Each declaration is a (possibly recursive) let binding
 decl :: { Declaration Info }
-  : let bindings     { DLet () (reverse $2) }
+  : let binding      { DLet () $2 }
   | let rec bindings { DLetRec () (reverse $3) }
 
 -- Let bindings may use the "and" keyword to allow mutual reference
@@ -226,7 +226,7 @@ fexpr :: { Expr Info }
 aexpr :: { Expr Info }
   : fun parameters '->' expr                { ELambda () (reverse $2) Nothing $4 }
   | fun parameters ':' type_tuple '->' expr { ELambda () (reverse $2) (Just $ mkTupleType $4) $6 }
-  | let bindings in expr                    { ELet () $2 $4 }
+  | let binding in expr                     { ELet () $2 $4 }
   | let rec bindings in expr                { ELetRec () (reverse $3) $5 }
   | if expr then expr else expr             { EIf () $2 $4 $6 }
   | match expr with pattern_matching        { EMatch () $2 $4 }

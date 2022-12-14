@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0e9494c427ca8f09a7d0356c331218a6c8a6735d5fc619be0e79264ba715cf4b
+-- hash: 8a1f3a69983e2562e49302a1018a852100ea47aa49f4df61496daff6b9c6dbd4
 
 name:           ml2
 version:        0.1.0.0
@@ -30,6 +30,7 @@ library
       AST
       Lexer
       Parser
+      Typecheck
   other-modules:
       Paths_ml2
   hs-source-dirs:
@@ -42,6 +43,8 @@ library
       array
     , base >=4.7 && <5
     , bytestring
+    , containers
+    , mtl
   default-language: Haskell2010
 
 executable ml2-exe
@@ -55,7 +58,9 @@ executable ml2-exe
       array
     , base >=4.7 && <5
     , bytestring
+    , containers
     , ml2
+    , mtl
   default-language: Haskell2010
 
 test-suite ml2-test
@@ -74,6 +79,8 @@ test-suite ml2-test
       array
     , base >=4.7 && <5
     , bytestring
+    , containers
     , hspec
     , ml2
+    , mtl
   default-language: Haskell2010
