@@ -26,6 +26,7 @@ module AST
   ) where
 
 import Data.ByteString.Lazy.Char8 (ByteString)
+import Data.List (foldl')
 
 -- | Constants
 data Constant a
@@ -43,6 +44,30 @@ data Type a
   | TApp a (Type a) ByteString -- ^ Type applications (e.g., 'a list)
   | TTuple a [Type a]          -- ^ Tuple types (e.g., 'a * 'b * 'c)
   deriving (Show, Eq, Functor)
+
+-- | Types have an ordering in order to be usable as map keys. This ordering
+-- does not have any interesting semantic meaning and ignores the extra info
+-- carried with the type.
+instance Ord (Type a) where
+  compare (TType _ a)     (TType _ b)     = compare a b
+  compare TType{}         _               = LT
+  compare (TVar _ a)      (TVar _ b)      = compare a b
+  compare TVar{}          TType{}         = GT
+  compare TVar{}          _               = LT
+  compare (TFunc _ a1 a2) (TFunc _ b1 b2) = case compare a1 b1 of
+                                              EQ  -> compare a2 b2
+                                              ord -> ord
+  compare TFunc{}         TType{}         = GT
+  compare TFunc{}         TVar{}          = GT
+  compare TFunc{}         _               = LT
+  compare (TApp _ a1 a2)  (TApp _ b1 b2)  = case compare a1 b1 of
+                                              EQ  -> compare a2 b2
+                                              ord -> ord
+  compare TApp{}          TTuple{}        = LT
+  compare TApp{}          _               = GT
+  compare (TTuple _ as)   (TTuple _ bs)   =
+    foldl' (\o (a, b) -> if o == EQ then compare a b else o) EQ $ zip as bs
+  compare TTuple{}        _               = GT
 
 -- | Binary operators
 data Binop a
